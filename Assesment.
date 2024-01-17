@@ -1,0 +1,64 @@
+function calculateTotal(products) {
+  let subtotal = 0;
+  let discountAmount = 0;
+  let shippingFee = 0;
+  let giftWrapFee = 0;
+  let totalQuantity = 0;
+
+  for (const product of products) {
+    const { name, quantity, price, giftWrap } = product;
+    totalQuantity += quantity;
+    let productTotal = quantity * price;
+
+    // Apply "bulk_5_discount" rule
+    if (quantity > 10) {
+      productTotal -= 0.05 * productTotal;
+    }
+
+    subtotal += productTotal;
+
+    // Apply "flat_10_discount" rule
+    if (subtotal > 200) {
+      discountAmount = 10;
+    }
+
+    // Gift wrap fee
+    if (giftWrap) {
+      giftWrapFee += quantity;
+    }
+  }
+
+  // Apply "bulk_10_discount" rule
+  if (totalQuantity > 20) {
+    discountAmount = Math.max(discountAmount, 0.1 * subtotal);
+  }
+
+  // Apply "tiered_50_discount" rule
+  if (totalQuantity > 30) {
+    discountAmount = Math.max(discountAmount, 0.5 * (subtotal - 15 * products[0].price));
+  }
+
+  // Shipping fee
+  shippingFee = Math.ceil(totalQuantity / 10) * 5;
+
+  const total = subtotal - discountAmount + shippingFee + giftWrapFee;
+
+  return {
+    subtotal,
+    discountName: discountAmount > 0 ? "flat_10_discount" : "",
+    discountAmount,
+    shippingFee,
+    giftWrapFee,
+    total,
+  };
+}
+
+// Example usage:
+const products = [
+  { name: "Product A", quantity: 5, price: 20, giftWrap: false },
+  { name: "Product B", quantity: 12, price: 40, giftWrap: true },
+  { name: "Product C", quantity: 10, price: 50, giftWrap: false },
+];
+
+const result = calculateTotal(products);
+console.log(result);
